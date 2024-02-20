@@ -1,36 +1,32 @@
 package main
 
 import (
-	"go-visual/pkg/display"
-	"time"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"go-visual/pkg/display"
+	"time"
 )
 
 var tick = 500 * time.Millisecond
 
 func main() {
-	rows := 20
-	cols := 20
-	size := 600
+	rows := 10
+	cols := 10
 
 	myApp := app.New()
-	w := myApp.NewWindow("A*")
-	w.Resize(fyne.NewSize(float32(size), float32(size)))
+	w := myApp.NewWindow("Maze")
+	w.Resize(fyne.NewSize(600, 600))
 
-	disp := display.NewGrid(rows, cols, size)
+	disp := display.NewGrid(rows, cols, 600)
 	w.SetContent(disp.Content())
 
 	alg := NewAlg(rows, cols)
-	disp.SetState(ToDisplayState(alg))
-
-	go runApp(alg, disp)
+	go runApp(alg, w, disp)
 
 	w.ShowAndRun()
 }
 
-func runApp(a *Alg, g *display.Grid) {
+func runApp(a *Alg, w fyne.Window, g *display.Grid) {
 	for range time.Tick(tick) {
 		if a.ended {
 			break
@@ -38,5 +34,6 @@ func runApp(a *Alg, g *display.Grid) {
 
 		a.Step()
 		g.UpdateState(ToUpdatedState(a))
+		w.SetContent(g.Content())
 	}
 }

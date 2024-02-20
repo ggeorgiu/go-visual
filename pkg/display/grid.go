@@ -5,14 +5,14 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
 )
 
 type pixel interface {
 	fyne.CanvasObject
 
-	update(c color.Color)
-	get() fyne.CanvasObject
+	update(color.Color)
+	setBounds([]bool)
+	get() []fyne.CanvasObject
 }
 
 type Grid struct {
@@ -22,13 +22,13 @@ type Grid struct {
 	pixels [][]pixel
 }
 
-func NewGrid(r, c int) *Grid {
+func NewGrid(r, c, ws int) *Grid {
 	pixels := make([][]pixel, r)
 
 	for i := 0; i < r; i++ {
 		pr := make([]pixel, c)
 		for j := 0; j < c; j++ {
-			pr[j] = newRect()
+			pr[j] = newRect(i, j, ws/r)
 		}
 
 		pixels[i] = pr
@@ -42,9 +42,10 @@ func NewGrid(r, c int) *Grid {
 }
 
 type State struct {
-	i int
-	j int
-	c color.Color
+	i       int
+	j       int
+	c       color.Color
+	borders []bool
 }
 
 func NewState(i, j int, c color.Color) *State {
@@ -52,6 +53,17 @@ func NewState(i, j int, c color.Color) *State {
 		i: i,
 		j: j,
 		c: c,
+	}
+
+	return &st
+}
+
+func NewStateWithBorders(i, j int, c color.Color, b []bool) *State {
+	st := State{
+		i:       i,
+		j:       j,
+		c:       c,
+		borders: b,
 	}
 
 	return &st
@@ -68,22 +80,20 @@ func (g *Grid) SetState(state [][]color.Color) {
 func (g *Grid) UpdateState(state []*State) {
 	for _, v := range state {
 		g.pixels[v.i][v.j].update(v.c)
+		if v.borders != nil {
+			g.pixels[v.i][v.j].setBounds(v.borders)
+		}
 	}
 }
 
 func (g *Grid) Content() fyne.CanvasObject {
-	cont := make([]fyne.CanvasObject, g.rows)
+	var obj []fyne.CanvasObject
 
 	for i := 0; i < g.rows; i++ {
-		obj := make([]fyne.CanvasObject, g.cols)
-
 		for j := 0; j < g.cols; j++ {
-			obj[j] = g.pixels[i][j].get()
+			obj = append(obj, g.pixels[i][j].get()...)
 		}
-
-		c := container.New(layout.NewGridLayout(g.cols), obj...)
-		cont[i] = c
 	}
 
-	return container.New(layout.NewGridLayoutWithRows(g.rows), cont...)
+	return container.NewWithoutLayout(obj...)
 }

@@ -57,6 +57,7 @@ func (a *Alg) Step() {
 
 		if current == a.end {
 			a.ended = true
+			return
 		}
 
 		a.openSet = append(a.openSet[:winner], a.openSet[winner+1:]...)
@@ -122,7 +123,7 @@ func initGrid(rows, cols int) [][]*Cell {
 			st[i][j] = NewCell(i, j)
 
 			r := rand.Float64()
-			if r < 0.3 {
+			if r < 0.4 {
 				st[i][j].SetType(TypeWall)
 			}
 		}
