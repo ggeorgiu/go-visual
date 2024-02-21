@@ -15,30 +15,31 @@ func getColor(c *Cell) color.Color {
 	return typeToColorMap[c.t]
 }
 
-func ToDisplayState(a *Alg) [][]color.Color {
-	st := make([][]color.Color, a.rows)
-	for i := 0; i < len(a.state)-1; i++ {
+type mapper struct {
+	a *Alg
+}
 
-		sr := make([]color.Color, a.cols)
-		for j := 0; j < len(a.state[0])-1; j++ {
-			sr[j] = getColor(a.state[i][j])
+func (m *mapper) GetInitialState() []*display.State {
+	var st []*display.State
+	for i := 0; i < len(m.a.state)-1; i++ {
+		for j := 0; j < len(m.a.state[0])-1; j++ {
+			st = append(st, display.NewState(display.WithCoords(i, j), display.WithColor(getColor(m.a.state[i][j]))))
 		}
-		st[i] = sr
 	}
 
 	return st
 }
 
-func ToUpdatedState(a *Alg) []*display.State {
+func (m *mapper) GetUpdatedState() []*display.State {
 	var st []*display.State
 
-	c := a.changed
+	c := m.a.changed
 	c.SetType(TypeMaze)
-	st = append(st, display.NewStateWithBorders(c.i, c.j, getColor(c), c.borders))
+	st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(getColor(c)), display.WithBorders(c.borders)))
 
-	c = a.current
+	c = m.a.current
 	c.SetType(TypeCurrent)
-	st = append(st, display.NewStateWithBorders(c.i, c.j, getColor(c), c.borders))
+	st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(getColor(c)), display.WithBorders(c.borders)))
 
 	return st
 }

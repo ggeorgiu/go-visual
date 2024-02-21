@@ -19,50 +19,51 @@ func getColor(c *Cell) color.Color {
 	return typeToColorMap[c.t]
 }
 
-func ToDisplayState(a *Alg) [][]color.Color {
-	st := make([][]color.Color, a.rows)
-	for i := 0; i < len(a.state)-1; i++ {
+type mapper struct {
+	a *Alg
+}
 
-		sr := make([]color.Color, a.cols)
-		for j := 0; j < len(a.state[0])-1; j++ {
-			sr[j] = getColor(a.state[i][j])
+func (m *mapper) GetInitialState() []*display.State {
+	var st []*display.State
+	for i := 0; i < len(m.a.state)-1; i++ {
+		for j := 0; j < len(m.a.state[0])-1; j++ {
+			st = append(st, display.NewState(display.WithCoords(i, j), display.WithColor(getColor(m.a.state[i][j]))))
 		}
-		st[i] = sr
 	}
 
 	return st
 }
 
-func ToUpdatedState(a *Alg) []*display.State {
+func (m *mapper) GetUpdatedState() []*display.State {
 	var st []*display.State
 
-	for i := 0; i < len(a.closedSet); i++ {
-		c := a.closedSet[i]
+	for i := 0; i < len(m.a.closedSet); i++ {
+		c := m.a.closedSet[i]
 
 		c.SetType(TypeChecked)
-		st = append(st, display.NewState(c.i, c.j, getColor(c)))
+		st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(getColor(c))))
 	}
 
-	for i := 0; i < len(a.openSet); i++ {
-		c := a.openSet[i]
+	for i := 0; i < len(m.a.openSet); i++ {
+		c := m.a.openSet[i]
 
 		c.SetType(TypePossible)
-		st = append(st, display.NewState(c.i, c.j, getColor(c)))
+		st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(getColor(c))))
 	}
 
-	for i := 0; i < len(a.path); i++ {
-		c := a.path[i]
+	for i := 0; i < len(m.a.path); i++ {
+		c := m.a.path[i]
 
 		c.SetType(TypePath)
-		st = append(st, display.NewState(c.i, c.j, getColor(c)))
+		st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(getColor(c))))
 	}
 
-	a.start.SetType(TypeStart)
-	a.end.SetType(TypeEnd)
+	m.a.start.SetType(TypeStart)
+	m.a.end.SetType(TypeEnd)
 
 	st = append(st,
-		display.NewState(a.start.i, a.start.j, getColor(a.start)),
-		display.NewState(a.end.i, a.end.j, getColor(a.end)),
+		display.NewState(display.WithCoords(m.a.start.i, m.a.start.j), display.WithColor(getColor(m.a.start))),
+		display.NewState(display.WithCoords(m.a.end.i, m.a.end.j), display.WithColor(getColor(m.a.end))),
 	)
 
 	return st

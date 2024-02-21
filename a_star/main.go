@@ -23,20 +23,20 @@ func main() {
 	w.SetContent(disp.Content())
 
 	alg := NewAlg(rows, cols)
-	disp.SetState(ToDisplayState(alg))
-
-	go runApp(alg, disp)
+	m := mapper{a: alg}
+	disp.SetState(&m)
+	go runApp(&m, alg, disp)
 
 	w.ShowAndRun()
 }
 
-func runApp(a *Alg, g *display.Grid) {
+func runApp(m *mapper, a *Alg, g *display.Grid) {
 	for range time.Tick(tick) {
 		if a.ended {
 			break
 		}
 
 		a.Step()
-		g.UpdateState(ToUpdatedState(a))
+		g.UpdateState(m)
 	}
 }

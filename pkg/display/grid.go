@@ -43,6 +43,11 @@ func NewGrid(r, c, ws int) *Grid {
 	}
 }
 
+type StateUpdater interface {
+	GetInitialState() []*State
+	GetUpdatedState() []*State
+}
+
 type State struct {
 	i       int
 	j       int
@@ -50,37 +55,44 @@ type State struct {
 	borders []bool
 }
 
-func NewState(i, j int, c color.Color) *State {
-	st := State{
-		i: i,
-		j: j,
-		c: c,
+func NewState(opts ...func(s *State)) *State {
+	st := State{}
+
+	for _, opt := range opts {
+		opt(&st)
 	}
 
 	return &st
 }
 
-func NewStateWithBorders(i, j int, c color.Color, b []bool) *State {
-	st := State{
-		i:       i,
-		j:       j,
-		c:       c,
-		borders: b,
-	}
-
-	return &st
-}
-
-func (g *Grid) SetState(state [][]color.Color) {
-	for i := 0; i < len(state)-1; i++ {
-		for j := 0; j < len(state[0])-1; j++ {
-			g.pixels[i][j].update(state[i][j])
-		}
+func WithCoords(i, j int) func(*State) {
+	return func(s *State) {
+		s.i = i
+		s.j = j
 	}
 }
 
-func (g *Grid) UpdateState(state []*State) {
-	for _, v := range state {
+func WithColor(c color.Color) func(*State) {
+	return func(s *State) {
+		s.c = c
+	}
+}
+
+func WithBorders(b []bool) func(*State) {
+	return func(s *State) {
+		s.borders = b
+	}
+}
+
+func (g *Grid) SetState(sp StateUpdater) {
+	for _, s := range sp.GetInitialState() {
+		g.pixels[s.i][s.j].update(s.c)
+	}
+
+}
+
+func (g *Grid) UpdateState(sp StateUpdater) {
+	for _, v := range sp.GetUpdatedState() {
 		for _, b := range g.pixels[v.i][v.j].getBounds() {
 			g.content.Remove(b)
 		}
