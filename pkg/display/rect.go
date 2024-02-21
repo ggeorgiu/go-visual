@@ -7,6 +7,7 @@ import (
 	"fyne.io/fyne/v2/canvas"
 )
 
+// TODO refactor
 type rect struct {
 	*canvas.Rectangle
 	strokes []fyne.CanvasObject
