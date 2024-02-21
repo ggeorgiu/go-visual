@@ -7,11 +7,11 @@ import (
 	"time"
 )
 
-var tick = 500 * time.Millisecond
+var tick = 100 * time.Millisecond
 
 func main() {
-	rows := 10
-	cols := 10
+	rows := 20
+	cols := 20
 
 	myApp := app.New()
 	w := myApp.NewWindow("Maze")
@@ -21,12 +21,12 @@ func main() {
 	w.SetContent(disp.Content())
 
 	alg := NewAlg(rows, cols)
-	go runApp(alg, w, disp)
+	go runApp(alg, disp)
 
 	w.ShowAndRun()
 }
 
-func runApp(a *Alg, w fyne.Window, g *display.Grid) {
+func runApp(a *Alg, g *display.Grid) {
 	for range time.Tick(tick) {
 		if a.ended {
 			break
@@ -34,6 +34,5 @@ func runApp(a *Alg, w fyne.Window, g *display.Grid) {
 
 		a.Step()
 		g.UpdateState(ToUpdatedState(a))
-		w.SetContent(g.Content())
 	}
 }

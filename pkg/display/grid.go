@@ -12,6 +12,7 @@ type pixel interface {
 
 	update(color.Color)
 	setBounds([]bool)
+	getBounds() []fyne.CanvasObject
 	get() []fyne.CanvasObject
 }
 
@@ -19,7 +20,8 @@ type Grid struct {
 	rows int
 	cols int
 
-	pixels [][]pixel
+	pixels  [][]pixel
+	content *fyne.Container
 }
 
 func NewGrid(r, c, ws int) *Grid {
@@ -79,11 +81,21 @@ func (g *Grid) SetState(state [][]color.Color) {
 
 func (g *Grid) UpdateState(state []*State) {
 	for _, v := range state {
+		for _, b := range g.pixels[v.i][v.j].getBounds() {
+			g.content.Remove(b)
+		}
+
 		g.pixels[v.i][v.j].update(v.c)
 		if v.borders != nil {
 			g.pixels[v.i][v.j].setBounds(v.borders)
 		}
+
+		for _, b := range g.pixels[v.i][v.j].getBounds() {
+			g.content.Add(b)
+		}
 	}
+
+	g.content.Refresh()
 }
 
 func (g *Grid) Content() fyne.CanvasObject {
@@ -95,5 +107,6 @@ func (g *Grid) Content() fyne.CanvasObject {
 		}
 	}
 
-	return container.NewWithoutLayout(obj...)
+	g.content = container.NewWithoutLayout(obj...)
+	return g.content
 }

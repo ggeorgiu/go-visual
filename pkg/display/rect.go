@@ -95,3 +95,7 @@ func (e *rect) setBounds(b []bool) {
 		e.strokes = append(e.strokes, l)
 	}
 }
+
+func (e *rect) getBounds() []fyne.CanvasObject {
+	return e.strokes
+}
