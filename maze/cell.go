@@ -1,5 +1,7 @@
 package main
 
+import "image/color"
+
 type CellType int
 
 const (
@@ -7,6 +9,12 @@ const (
 	TypeMaze
 	TypeCurrent
 )
+
+var typeToColorMap = map[CellType]color.Color{
+	TypeCell:    color.White,
+	TypeMaze:    color.RGBA{R: 0, G: 255, B: 0, A: 100},   // green
+	TypeCurrent: color.RGBA{R: 255, G: 255, B: 0, A: 255}, // yellow
+}
 
 type Cell struct {
 	i int
@@ -22,7 +30,6 @@ func NewCell(i, j int) *Cell {
 		i:       i,
 		j:       j,
 		borders: []bool{true, true, true, true},
-		t:       TypeCell,
 	}
 
 	return &c
@@ -34,4 +41,8 @@ func (c *Cell) SetType(t CellType) {
 
 func (c *Cell) GetType() CellType {
 	return c.t
+}
+
+func (c *Cell) GetColor() color.Color {
+	return typeToColorMap[c.t]
 }

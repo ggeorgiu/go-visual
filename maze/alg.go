@@ -2,6 +2,8 @@ package main
 
 import (
 	"math/rand"
+
+	"go-visual/pkg/ui/display"
 )
 
 type Alg struct {
@@ -115,4 +117,33 @@ func (a *Alg) getNeighs(i, j int) []*Cell {
 	}
 
 	return neigh
+}
+
+func (a *Alg) GetInitialState() []*display.State {
+	var st []*display.State
+	for i := 0; i < len(a.state)-1; i++ {
+		for j := 0; j < len(a.state[0])-1; j++ {
+			st = append(st, display.NewState(display.WithCoords(i, j), display.WithColor(a.state[i][j].GetColor())))
+		}
+	}
+
+	return st
+}
+
+func (a *Alg) GetUpdatedState() []*display.State {
+	var st []*display.State
+
+	c := a.changed
+	c.SetType(TypeMaze)
+	st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(c.GetColor()), display.WithBorders(c.borders)))
+
+	c = a.current
+	c.SetType(TypeCurrent)
+	st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(c.GetColor()), display.WithBorders(c.borders)))
+
+	return st
+}
+
+func (a *Alg) Ended() bool {
+	return a.ended
 }

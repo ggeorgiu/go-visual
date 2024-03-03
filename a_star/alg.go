@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"math/rand/v2"
+
+	"go-visual/pkg/ui/display"
 )
 
 var heuristic = func(c, e *Cell) float64 {
@@ -162,4 +164,54 @@ func (a *Alg) getNeighs(i, j int) []*Cell {
 	}
 
 	return neigh
+}
+
+func (a *Alg) GetInitialState() []*display.State {
+	var st []*display.State
+	for i := 0; i < len(a.state)-1; i++ {
+		for j := 0; j < len(a.state[0])-1; j++ {
+			st = append(st, display.NewState(display.WithCoords(i, j), display.WithColor(a.state[i][j].GetColor())))
+		}
+	}
+
+	return st
+}
+
+func (a *Alg) GetUpdatedState() []*display.State {
+	var st []*display.State
+
+	for i := 0; i < len(a.closedSet); i++ {
+		c := a.closedSet[i]
+
+		c.SetType(TypeChecked)
+		st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(c.GetColor())))
+	}
+
+	for i := 0; i < len(a.openSet); i++ {
+		c := a.openSet[i]
+
+		c.SetType(TypePossible)
+		st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(c.GetColor())))
+	}
+
+	for i := 0; i < len(a.path); i++ {
+		c := a.path[i]
+
+		c.SetType(TypePath)
+		st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(c.GetColor())))
+	}
+
+	a.start.SetType(TypeStart)
+	a.end.SetType(TypeEnd)
+
+	st = append(st,
+		display.NewState(display.WithCoords(a.start.i, a.start.j), display.WithColor(a.start.GetColor())),
+		display.NewState(display.WithCoords(a.end.i, a.end.j), display.WithColor(a.end.GetColor())),
+	)
+
+	return st
+}
+
+func (a *Alg) Ended() bool {
+	return a.ended
 }
