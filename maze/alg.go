@@ -1,9 +1,8 @@
 package main
 
 import (
-	"math/rand"
-
 	"go-visual/pkg/ui/display"
+	"math/rand"
 )
 
 type Alg struct {
@@ -63,13 +62,14 @@ func (a *Alg) Step() {
 
 	a.stack = append(a.stack, a.current)
 	next := n[r]
-	changeBorders(a.current, next)
+
+	updateBorders(a.current, next)
 	a.changed = a.current
 	a.current = next
 	a.current.visited = true
 }
 
-func changeBorders(current *Cell, next *Cell) {
+func updateBorders(current *Cell, next *Cell) {
 	x := next.i - current.i
 	if x == 1 {
 		current.borders[2] = false
@@ -119,27 +119,27 @@ func (a *Alg) getNeighs(i, j int) []*Cell {
 	return neigh
 }
 
-func (a *Alg) GetInitialState() []*display.State {
-	var st []*display.State
+func (a *Alg) GetInitialState() []*display.CoordState {
+	var st []*display.CoordState
 	for i := 0; i < len(a.state)-1; i++ {
 		for j := 0; j < len(a.state[0])-1; j++ {
-			st = append(st, display.NewState(display.WithCoords(i, j), display.WithColor(a.state[i][j].GetColor())))
+			st = append(st, display.NewCoordState(display.WithCoords(i, j), display.WithColor(a.state[i][j].GetColor())))
 		}
 	}
 
 	return st
 }
 
-func (a *Alg) GetUpdatedState() []*display.State {
-	var st []*display.State
+func (a *Alg) GetUpdatedState() []*display.CoordState {
+	var st []*display.CoordState
 
 	c := a.changed
 	c.SetType(TypeMaze)
-	st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(c.GetColor()), display.WithBorders(c.borders)))
+	st = append(st, display.NewCoordState(display.WithCoords(c.i, c.j), display.WithColor(c.GetColor()), display.WithBorders(c.borders)))
 
 	c = a.current
 	c.SetType(TypeCurrent)
-	st = append(st, display.NewState(display.WithCoords(c.i, c.j), display.WithColor(c.GetColor()), display.WithBorders(c.borders)))
+	st = append(st, display.NewCoordState(display.WithCoords(c.i, c.j), display.WithColor(c.GetColor()), display.WithBorders(c.borders)))
 
 	return st
 }

@@ -3,21 +3,21 @@ package display
 import "image/color"
 
 type StateProvider interface {
-	GetInitialState() []*State
-	GetUpdatedState() []*State
+	GetInitialState() []*CoordState
+	GetUpdatedState() []*CoordState
 	Step()
 	Ended() bool
 }
 
-type State struct {
+type CoordState struct {
 	i       int
 	j       int
 	c       color.Color
 	borders []bool
 }
 
-func NewState(opts ...func(s *State)) *State {
-	st := State{}
+func NewCoordState(opts ...func(s *CoordState)) *CoordState {
+	st := CoordState{}
 
 	for _, opt := range opts {
 		opt(&st)
@@ -26,21 +26,21 @@ func NewState(opts ...func(s *State)) *State {
 	return &st
 }
 
-func WithCoords(i, j int) func(*State) {
-	return func(s *State) {
+func WithCoords(i, j int) func(*CoordState) {
+	return func(s *CoordState) {
 		s.i = i
 		s.j = j
 	}
 }
 
-func WithColor(c color.Color) func(*State) {
-	return func(s *State) {
+func WithColor(c color.Color) func(*CoordState) {
+	return func(s *CoordState) {
 		s.c = c
 	}
 }
 
-func WithBorders(b []bool) func(*State) {
-	return func(s *State) {
+func WithBorders(b []bool) func(*CoordState) {
+	return func(s *CoordState) {
 		s.borders = b
 	}
 }
