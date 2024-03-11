@@ -7,7 +7,7 @@ import (
 func main() {
 	rows := 20
 	cols := 20
-	size := float32(600)
+	size := 600
 
 	a := app.NewApp(
 		app.WithTitle("A*"),

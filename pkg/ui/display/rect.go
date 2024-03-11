@@ -7,24 +7,23 @@ import (
 	"fyne.io/fyne/v2/canvas"
 )
 
-// TODO refactor
 type rect struct {
-	*canvas.Rectangle
-	strokes []fyne.CanvasObject
+	rectangle *canvas.Rectangle
+	strokes   []fyne.CanvasObject
 }
 
 func newRect(row, col, width int) *rect {
 	e := rect{
-		Rectangle: &canvas.Rectangle{
+		rectangle: &canvas.Rectangle{
 			FillColor: color.White,
 		},
 	}
-	e.Move(fyne.Position{
+	e.rectangle.Move(fyne.Position{
 		X: float32(col * width),
 		Y: float32(row * width),
 	})
 
-	e.Resize(fyne.Size{
+	e.rectangle.Resize(fyne.Size{
 		Width:  float32(width),
 		Height: float32(width),
 	})
@@ -35,14 +34,14 @@ func newRect(row, col, width int) *rect {
 }
 
 func (e *rect) setColor(c color.Color) {
-	e.FillColor = c
-	e.Refresh()
+	e.rectangle.FillColor = c
+	e.rectangle.Refresh()
 }
 
 func (e *rect) get() []fyne.CanvasObject {
 	var all []fyne.CanvasObject
 
-	all = append(all, e.Rectangle)
+	all = append(all, e.rectangle)
 	all = append(all, e.strokes...)
 
 	return all
@@ -52,8 +51,8 @@ func (e *rect) setBounds(b []bool) {
 	e.strokes = []fyne.CanvasObject{}
 
 	if b[0] == true {
-		from := fyne.NewPos(e.Rectangle.Position().X, e.Rectangle.Position().Y)
-		to := fyne.NewPos(e.Rectangle.Position().X+e.Rectangle.Size().Width, e.Rectangle.Position().Y)
+		from := fyne.NewPos(e.rectangle.Position().X, e.rectangle.Position().Y)
+		to := fyne.NewPos(e.rectangle.Position().X+e.rectangle.Size().Width, e.rectangle.Position().Y)
 
 		l := canvas.NewLine(color.Black)
 		l.Position1 = to
@@ -63,8 +62,8 @@ func (e *rect) setBounds(b []bool) {
 	}
 
 	if b[1] == true {
-		from := fyne.NewPos(e.Rectangle.Position().X+e.Rectangle.Size().Width, e.Rectangle.Position().Y)
-		to := fyne.NewPos(e.Rectangle.Position().X+e.Rectangle.Size().Width, e.Rectangle.Position().Y+e.Rectangle.Size().Width)
+		from := fyne.NewPos(e.rectangle.Position().X+e.rectangle.Size().Width, e.rectangle.Position().Y)
+		to := fyne.NewPos(e.rectangle.Position().X+e.rectangle.Size().Width, e.rectangle.Position().Y+e.rectangle.Size().Width)
 
 		l := canvas.NewLine(color.Black)
 		l.Position1 = to
@@ -74,8 +73,8 @@ func (e *rect) setBounds(b []bool) {
 	}
 
 	if b[2] == true {
-		from := fyne.NewPos(e.Rectangle.Position().X+e.Rectangle.Size().Width, e.Rectangle.Position().Y+e.Rectangle.Size().Width)
-		to := fyne.NewPos(e.Rectangle.Position().X, e.Rectangle.Position().Y+e.Rectangle.Size().Width)
+		from := fyne.NewPos(e.rectangle.Position().X+e.rectangle.Size().Width, e.rectangle.Position().Y+e.rectangle.Size().Width)
+		to := fyne.NewPos(e.rectangle.Position().X, e.rectangle.Position().Y+e.rectangle.Size().Width)
 
 		l := canvas.NewLine(color.Black)
 		l.Position1 = from
@@ -86,8 +85,8 @@ func (e *rect) setBounds(b []bool) {
 	}
 
 	if b[3] == true {
-		from := fyne.NewPos(e.Rectangle.Position().X, e.Rectangle.Position().Y+e.Rectangle.Size().Width)
-		to := fyne.NewPos(e.Rectangle.Position().X, e.Rectangle.Position().Y)
+		from := fyne.NewPos(e.rectangle.Position().X, e.rectangle.Position().Y+e.rectangle.Size().Width)
+		to := fyne.NewPos(e.rectangle.Position().X, e.rectangle.Position().Y)
 
 		l := canvas.NewLine(color.Black)
 		l.Position1 = from

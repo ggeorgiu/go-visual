@@ -8,11 +8,14 @@ import (
 	"go-visual/pkg/ui/display"
 )
 
-var heuristic = func(c, e *Cell) float64 {
-	//return math.Sqrt(float64((c.i-e.i)*(c.i-e.i) + (c.j-e.j)*(c.j-e.j)))
-	//
-	return math.Abs(float64(c.i-e.i)) + math.Abs(float64(c.j-e.j))
-}
+var (
+	heuristicAbs = func(c, e *Cell) float64 {
+		return math.Abs(float64(c.i-e.i)) + math.Abs(float64(c.j-e.j))
+	}
+	heuristicSqrt = func(c, e *Cell) float64 {
+		return math.Sqrt(float64((c.i-e.i)*(c.i-e.i) + (c.j-e.j)*(c.j-e.j)))
+	}
+)
 
 type Alg struct {
 	rows int
@@ -40,7 +43,7 @@ func NewAlg(rows, cols int) *Alg {
 	a.end = a.state[rows-1][cols-1]
 
 	a.start.g = 0
-	a.start.h = heuristic(a.start, a.end)
+	a.start.h = heuristicAbs(a.start, a.end)
 	a.openSet = append(a.openSet, a.start)
 
 	return &a
@@ -98,7 +101,7 @@ func (a *Alg) Step() {
 			}
 
 			n.g = currentG
-			n.h = heuristic(n, a.end)
+			n.h = heuristicAbs(n, a.end)
 			n.f = float64(n.g) + n.h
 
 			n.prev = current
@@ -168,8 +171,8 @@ func (a *Alg) getNeighs(i, j int) []*Cell {
 
 func (a *Alg) GetInitialState() []*display.CoordState {
 	var st []*display.CoordState
-	for i := 0; i < len(a.state)-1; i++ {
-		for j := 0; j < len(a.state[0])-1; j++ {
+	for i := 0; i < len(a.state); i++ {
+		for j := 0; j < len(a.state[0]); j++ {
 			st = append(st, display.NewCoordState(display.WithCoords(i, j), display.WithColor(a.state[i][j].GetColor())))
 		}
 	}

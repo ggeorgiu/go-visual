@@ -121,8 +121,8 @@ func (a *Alg) getNeighs(i, j int) []*Cell {
 
 func (a *Alg) GetInitialState() []*display.CoordState {
 	var st []*display.CoordState
-	for i := 0; i < len(a.state)-1; i++ {
-		for j := 0; j < len(a.state[0])-1; j++ {
+	for i := 0; i < len(a.state); i++ {
+		for j := 0; j < len(a.state[0]); j++ {
 			st = append(st, display.NewCoordState(display.WithCoords(i, j), display.WithColor(a.state[i][j].GetColor())))
 		}
 	}

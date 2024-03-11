@@ -1,10 +1,12 @@
 package app
 
 import (
+	"strings"
 	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/driver/desktop"
 
 	"go-visual/pkg/ui/display"
 )
@@ -26,6 +28,10 @@ type App struct {
 	height float32
 	width  float32
 	tick   time.Duration
+
+	canPause bool
+	paused   bool
+	stepKey  rune
 
 	sm StateManager
 }
@@ -54,22 +60,37 @@ func WithTitle(title string) func(*App) {
 	}
 }
 
-func WithSize(w, h float32) func(*App) {
+func WithSize(w, h int) func(*App) {
 	return func(a *App) {
 		if a.window == nil {
 			w := a.app.NewWindow("App")
 			a.window = w
 		}
-		a.window.Resize(fyne.NewSize(w, h))
+		a.window.Resize(fyne.NewSize(float32(w+7), float32(h+7)))
 
-		a.height = h
-		a.width = w
+		a.height = float32(h)
+		a.width = float32(w)
 	}
 }
 
 func WithTick(t time.Duration) func(*App) {
 	return func(a *App) {
 		a.tick = t
+	}
+}
+
+func WithStepOnKey(k rune) func(*App) {
+	return func(a *App) {
+		a.canPause = true
+		a.stepKey = k
+
+		if deskCanvas, ok := a.window.Canvas().(desktop.Canvas); ok {
+			deskCanvas.SetOnKeyUp(func(key *fyne.KeyEvent) {
+				if strings.ToLower(string(key.Name)) == string(k) {
+					a.paused = false
+				}
+			})
+		}
 	}
 }
 
@@ -88,14 +109,23 @@ func (a *App) GetStateManager() StateManager {
 func (a *App) Run(sp display.StateProvider) {
 	go func() {
 		a.sm.InitState(sp)
-		for range time.Tick(tick) {
+		for range time.Tick(a.tick) {
 			if sp.Ended() {
 				break
 			}
 
+			if a.paused {
+				continue
+			}
+
 			sp.Step()
 			a.sm.UpdateState(sp)
+
+			if a.canPause && !a.paused {
+				a.paused = true
+			}
 		}
 	}()
+
 	a.window.ShowAndRun()
 }

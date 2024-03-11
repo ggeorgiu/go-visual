@@ -8,7 +8,6 @@ import (
 )
 
 type pixel interface {
-	fyne.CanvasObject
 	get() []fyne.CanvasObject
 
 	setColor(color.Color)
