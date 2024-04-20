@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	tick     = 100 * time.Millisecond
+	tick     = 200 * time.Millisecond
 	defaultH = float32(200)
 	defaultW = float32(200)
 )

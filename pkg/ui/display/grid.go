@@ -15,6 +15,8 @@ type pixel interface {
 	get() []fyne.CanvasObject
 }
 
+const gridSize = 5
+
 // 10 X 10
 type chunk struct {
 	pixels  [][]pixel
@@ -29,22 +31,22 @@ type Grid struct {
 }
 
 func NewGrid(r, c, ws int) *Grid {
-	chunks := make([][]chunk, r/10)
+	chunks := make([][]chunk, r/gridSize)
 
-	for i := 1; i < r; i += 10 {
-		ch := make([]chunk, c/10)
-		for j := 1; j < c; j += 10 {
-			ch[j/10] = chunk{pixels: make([][]pixel, 10)}
+	for i := 1; i < r; i += gridSize {
+		ch := make([]chunk, c/gridSize)
+		for j := 1; j < c; j += gridSize {
+			ch[j/gridSize] = chunk{pixels: make([][]pixel, gridSize)}
 		}
 
-		chunks[i/10] = ch
+		chunks[i/gridSize] = ch
 	}
 
 	for i := 0; i < r; i++ {
 		for j := 0; j < c; j++ {
 			pix := newRect(i, j, ws/r)
 
-			chunks[i/10][j/10].pixels[i%10] = append(chunks[i/10][j/10].pixels[i%10], pix)
+			chunks[i/gridSize][j/gridSize].pixels[i%gridSize] = append(chunks[i/gridSize][j/gridSize].pixels[i%gridSize], pix)
 		}
 	}
 
@@ -57,27 +59,38 @@ func NewGrid(r, c, ws int) *Grid {
 
 func (g *Grid) InitState(sp StateProvider) {
 	for _, s := range sp.GetInitialState() {
-		g.chunks[s.i/10][s.j/10].pixels[s.i%10][s.j%10].setColor(s.c)
+		g.chunks[s.i/gridSize][s.j/gridSize].pixels[s.i%gridSize][s.j%gridSize].setColor(s.c)
 	}
 }
 
 func (g *Grid) UpdateState(sp StateProvider) {
 	for _, v := range sp.GetUpdatedState() {
+		c := g.chunks[v.i/gridSize][v.j/gridSize]
+		cl := color.RGBA{
+			R: 255,
+			G: 255,
+			B: 0,
+			A: 222,
+		}
+		c.pixels[0][0].setColor(cl)
+		c.pixels[0][gridSize-1].setColor(cl)
+		c.pixels[gridSize-1][0].setColor(cl)
+		c.pixels[gridSize-1][gridSize-1].setColor(cl)
 
-		for _, b := range g.chunks[v.i/10][v.j/10].pixels[v.i%10][v.j%10].getBounds() {
-			g.chunks[v.i/10][v.j/10].content.Remove(b)
+		for _, b := range c.pixels[v.i%gridSize][v.j%gridSize].getBounds() {
+			c.content.Remove(b)
 		}
 
-		g.chunks[v.i/10][v.j/10].pixels[v.i%10][v.j%10].setColor(v.c)
+		c.pixels[v.i%gridSize][v.j%gridSize].setColor(v.c)
 		if v.borders != nil {
-			g.chunks[v.i/10][v.j/10].pixels[v.i%10][v.j%10].setBounds(v.borders)
+			c.pixels[v.i%gridSize][v.j%gridSize].setBounds(v.borders)
 		}
 
-		for _, b := range g.chunks[v.i/10][v.j/10].pixels[v.i%10][v.j%10].getBounds() {
-			g.chunks[v.i/10][v.j/10].content.Add(b)
+		for _, b := range c.pixels[v.i%gridSize][v.j%gridSize].getBounds() {
+			c.content.Add(b)
 		}
 
-		g.chunks[v.i/10][v.j/10].content.Refresh()
+		c.content.Refresh()
 	}
 }
 
@@ -96,8 +109,8 @@ func (g *Grid) Content() fyne.CanvasObject {
 func (c *chunk) Content() fyne.CanvasObject {
 	var obj []fyne.CanvasObject
 
-	for i := 0; i < 10; i++ {
-		for j := 0; j < 10; j++ {
+	for i := 0; i < gridSize; i++ {
+		for j := 0; j < gridSize; j++ {
 			obj = append(obj, c.pixels[i][j].get()...)
 		}
 	}

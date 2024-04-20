@@ -21,8 +21,9 @@ type Alg struct {
 	rows int
 	cols int
 
-	start *Cell
-	end   *Cell
+	start   *Cell
+	current *Cell
+	end     *Cell
 
 	state     [][]*Cell
 	openSet   []*Cell
@@ -58,10 +59,17 @@ func (a *Alg) Step() {
 			}
 		}
 
-		current := a.openSet[winner]
+		a.current = a.openSet[winner]
+		current := a.current
 
 		if current == a.end {
 			a.ended = true
+			a.path = []*Cell{}
+			a.path = append(a.path, current)
+			for current.prev != nil {
+				a.path = append(a.path, current.prev)
+				current = current.prev
+			}
 			return
 		}
 
@@ -105,14 +113,6 @@ func (a *Alg) Step() {
 			n.f = float64(n.g) + n.h
 
 			n.prev = current
-		}
-
-		c := current
-		a.path = []*Cell{}
-		a.path = append(a.path, c)
-		for c.prev != nil {
-			a.path = append(a.path, c.prev)
-			c = c.prev
 		}
 	} else {
 		fmt.Println("NO SOLUTION")
