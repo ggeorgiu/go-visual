@@ -7,15 +7,15 @@ import (
 )
 
 func main() {
-	rows := 100
-	cols := 100
+	rows := 10
+	cols := 10
 	size := 600
 
 	a := app.NewApp(
 		app.WithTitle("A*"),
 		app.WithSize(size, size),
 		app.WithDisplayGrid(rows, cols),
-		app.WithTick(50*time.Millisecond),
+		app.WithTick(1*time.Second),
 	)
 
 	alg := NewAlg(rows, cols)

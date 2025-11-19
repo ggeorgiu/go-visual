@@ -66,16 +66,16 @@ func (g *Grid) InitState(sp StateProvider) {
 func (g *Grid) UpdateState(sp StateProvider) {
 	for _, v := range sp.GetUpdatedState() {
 		c := g.chunks[v.i/gridSize][v.j/gridSize]
-		cl := color.RGBA{
-			R: 255,
-			G: 255,
-			B: 0,
-			A: 222,
-		}
-		c.pixels[0][0].setColor(cl)
-		c.pixels[0][gridSize-1].setColor(cl)
-		c.pixels[gridSize-1][0].setColor(cl)
-		c.pixels[gridSize-1][gridSize-1].setColor(cl)
+		//cl := color.RGBA{
+		//	R: 255,
+		//	G: 255,
+		//	B: 0,
+		//	A: 222,
+		//}
+		//c.pixels[0][0].setColor(cl)
+		//c.pixels[0][gridSize-1].setColor(cl)
+		//c.pixels[gridSize-1][0].setColor(cl)
+		//c.pixels[gridSize-1][gridSize-1].setColor(cl)
 
 		for _, b := range c.pixels[v.i%gridSize][v.j%gridSize].getBounds() {
 			c.content.Remove(b)
